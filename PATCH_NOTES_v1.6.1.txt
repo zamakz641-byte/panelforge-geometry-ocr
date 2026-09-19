@@ -1,0 +1,10 @@
+PanelForge Geometry + OCR v1.6.1
+==================================
+
+Correctif Windows chemins Unicode
+----------------------------------
+- Corrige l'échec de sauvegarde quand le chemin contient des caractères Unicode
+  (ex. apostrophe typographique ’ dans “I’m the Shadow”, accents, caractères non latins).
+- Remplace cv2.imwrite par cv2.imencode + ndarray.tofile pour les panels et le debug.
+- Rend aussi la lecture des images Unicode-safe avec numpy.fromfile + cv2.imdecode.
+- Aucun changement dans l'algorithme de découpe v1.6.

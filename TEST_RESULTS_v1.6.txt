@@ -1,0 +1,18 @@
+PanelForge v1.6 - regression test on the 6 supplied 2048px samples
+
+Mode tested: geometry-only, analysis width 192 px.
+The v1.5 engine returned 1 crop for each of the 6 samples.
+The v1.6 engine returned:
+- panel_0045(5).png : 4 panels (3 post-split cuts)
+- panel_0031(4).png : 2 panels (1 post-split cut)
+- panel_0006(9).png : 3 panels (2 post-split cuts)
+- panel_0010(6).png : 4 panels (3 post-split cuts)
+- panel_0013(10).png: 2 panels (1 post-split cut)
+- panel_0015(5).png : 3 panels (2 post-split cuts)
+
+Additional checks:
+- Python compilation: OK
+- engine.process_source end-to-end: OK
+- OCR-aware split logic exercised with synthetic text boxes to verify text protection / OCR-seeded gaps.
+
+Important: OCR remains enabled by default in the UI. On the user's machine the existing PP-OCRv4 model download/cache path is unchanged.

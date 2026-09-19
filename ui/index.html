@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PanelForge Geometry + OCR</title>
+<style>
+:root{
+  --bg:#090b10;--panel:#11141c;--panel2:#161a24;--line:#252b39;
+  --text:#f6f7fb;--muted:#8f98ab;--accent:#7c5cff;--accent2:#31c7ff;
+  --good:#39d98a;--bad:#ff5f72;--shadow:0 22px 70px rgba(0,0,0,.34);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;background:
+radial-gradient(circle at 12% 0%,rgba(124,92,255,.15),transparent 30%),
+radial-gradient(circle at 90% 12%,rgba(49,199,255,.09),transparent 27%),var(--bg);color:var(--text)}
+body{overflow:hidden}
+.app{height:100%;display:flex;flex-direction:column}
+.topbar{height:70px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.055);background:rgba(9,11,16,.74);backdrop-filter:blur(18px)}
+.brand{display:flex;align-items:center;gap:13px}.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;box-shadow:0 8px 28px rgba(124,92,255,.33)}
+.logo svg{width:22px;height:22px}.brand h1{font-size:17px;margin:0;font-weight:740;letter-spacing:.1px}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.badge{font-size:11px;color:#bec7da;background:#141824;border:1px solid #252b3a;border-radius:999px;padding:7px 11px}
+.main{flex:1;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.72fr);gap:18px;padding:22px 24px 24px;min-height:0}
+.card{background:linear-gradient(180deg,rgba(20,24,34,.96),rgba(14,17,24,.96));border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.left{padding:24px;display:flex;flex-direction:column;gap:18px;min-height:0}.right{padding:20px;display:flex;flex-direction:column;gap:15px;min-height:0}
+.kicker{text-transform:uppercase;letter-spacing:1.4px;color:#777f95;font-size:10px;font-weight:800;margin-bottom:7px}.title{font-size:28px;line-height:1.08;margin:0 0 7px;font-weight:780;letter-spacing:-.6px}.sub{color:var(--muted);font-size:13px;line-height:1.55;margin:0;max-width:760px}
+.source-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.source-btn{border:1px solid #2a3040;background:#141924;border-radius:16px;padding:18px;text-align:left;color:var(--text);cursor:pointer;transition:.17s ease;position:relative;overflow:hidden}
+.source-btn:hover{transform:translateY(-1px);border-color:#48516b;background:#181e2a}.source-btn:active{transform:translateY(0)}.source-btn .icon{width:38px;height:38px;border-radius:12px;background:#202638;display:grid;place-items:center;margin-bottom:12px;color:#c9d0df}.source-btn strong{display:block;font-size:14px;margin-bottom:4px}.source-btn span{font-size:11px;color:var(--muted)}
+.selected{border:1px solid #2a3040;background:#0d1118;border-radius:15px;padding:14px 15px;display:flex;align-items:center;gap:12px;min-height:68px}.selected .dot{width:9px;height:9px;border-radius:99px;background:#51586a;box-shadow:0 0 0 5px rgba(81,88,106,.1)}.selected.ready .dot{background:var(--good);box-shadow:0 0 0 5px rgba(57,217,138,.1)}.selected-text{min-width:0;flex:1}.selected-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.selected-path{font-size:10px;color:#747d91;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.action{margin-top:auto}.run{width:100%;height:54px;border:0;border-radius:15px;background:linear-gradient(105deg,var(--accent),#6547f5 55%,#438fff);color:white;font-size:14px;font-weight:780;cursor:pointer;box-shadow:0 12px 32px rgba(100,72,245,.27);transition:.17s}.run:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}.run:disabled{cursor:not-allowed;opacity:.42;box-shadow:none}
+.hint{display:flex;align-items:center;justify-content:center;gap:7px;color:#747d91;font-size:10px;margin-top:9px}.hint svg{width:13px;height:13px}
+.section-title{font-size:12px;font-weight:750;color:#cfd5e3;display:flex;align-items:center;justify-content:space-between}.mini{font-size:10px;color:#687186;font-weight:500}
+.progressbox{background:#0c1017;border:1px solid #202636;border-radius:15px;padding:14px}.progress-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.progress-msg{font-size:11px;color:#c4cad7}.progress-pct{font-size:11px;color:#7f8aa0;font-variant-numeric:tabular-nums}.track{height:8px;border-radius:999px;background:#191f2c;overflow:hidden}.bar{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .18s ease}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat{border:1px solid #222838;background:#0d1118;border-radius:14px;padding:12px}.stat .n{font-size:19px;font-weight:780;letter-spacing:-.4px}.stat .l{font-size:9px;color:#727c91;text-transform:uppercase;letter-spacing:.7px;margin-top:4px}
+.settings{border:1px solid #222838;background:#0d1118;border-radius:15px;overflow:hidden}.settings button{all:unset;cursor:pointer;width:100%;padding:13px 14px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#bec7d8}.settings .inner{display:none;padding:0 14px 14px}.settings.open .inner{display:block}.row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid #1e2431}.row label{font-size:10px;color:#8a94a8}.row select{background:#161c28;color:#d9deea;border:1px solid #2c3445;border-radius:8px;padding:6px 9px;font-size:10px;outline:none}.check{display:flex;align-items:center;gap:8px;font-size:10px;color:#8a94a8}.check input{accent-color:var(--accent)}
+.result{display:none;border:1px solid rgba(57,217,138,.25);background:rgba(57,217,138,.055);border-radius:15px;padding:14px}.result.show{display:block}.result-title{font-size:12px;font-weight:760;color:#c9f4df}.result-path{font-size:9px;color:#78a48f;margin-top:5px;word-break:break-all}.open-btn{margin-top:10px;width:100%;border:1px solid rgba(57,217,138,.28);background:rgba(57,217,138,.08);color:#bcead5;border-radius:10px;padding:9px;font-size:10px;font-weight:700;cursor:pointer}
+.error{display:none;border:1px solid rgba(255,95,114,.28);background:rgba(255,95,114,.055);border-radius:15px;padding:12px;font-size:10px;color:#ffabb5;line-height:1.45}.error.show{display:block}
+.footer-note{font-size:9px;line-height:1.55;color:#5f687a;margin-top:auto;padding:0 2px}.footer-note b{color:#7b8498}.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.25);border-top-color:white;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:900px){.main{grid-template-columns:1fr}.right{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M7 4h10M5 8h14M7 12h10M5 16h14M8 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+    </div><div><h1>PanelForge Geometry + OCR</h1><small>Webtoon panel extractor • v1.6.2</small></div></div>
+    <div class="badge">Local • Geometry + OCR</div>
+  </header>
+
+  <main class="main">
+    <section class="card left">
+      <div>
+        <div class="kicker">Extraction géométrique + texte</div>
+        <h2 class="title">Découpe un chapitre entier<br>en panels, rapidement.</h2>
+        <p class="sub">Choisis un CBZ ou un dossier d’images. Le moteur géométrique détecte d’abord les panels, puis un second passage sépare les grands blocs fusionnés sur des coutures visuelles sûres. L’OCR protège les bulles et captions pendant la coupe. Les crops restent reconstruits depuis les images HD originales.</p>
+      </div>
+
+      <div class="source-grid">
+        <button class="source-btn" id="cbzBtn">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h3l1.6 2H18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7.5Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 10v5m0 0-2-2m2 2 2-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <strong>Choisir un fichier CBZ</strong><span>Le chapitre est extrait temporairement puis supprimé.</span>
+        </button>
+        <button class="source-btn" id="folderBtn">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3.5 7.5h6l1.7 2H20.5v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V7.5Z" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5V6a2 2 0 0 1 2-2H9l1.6 2h6.9a2 2 0 0 1 2 2v1.6.2" stroke="currentColor" stroke-width="1.8"/></svg></div>
+          <strong>Choisir un dossier d’images</strong><span>PNG, JPG, JPEG, WEBP ou BMP, tri naturel.</span>
+        </button>
+      </div>
+
+      <div class="selected" id="selectedBox">
+        <div class="dot"></div><div class="selected-text">
+          <div class="selected-name" id="selectedName">Aucune source sélectionnée</div>
+          <div class="selected-path" id="selectedPath">La sortie sera créée automatiquement à côté de la source.</div>
+        </div>
+      </div>
+
+      <div class="action">
+        <button class="run" id="runBtn" disabled>Découper les panels</button>
+        <div class="hint"><svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l2.5 1.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="1.6"/></svg> OCR optionnel : protège les bulles/captions pendant le split des grands panels et élargit le crop si nécessaire.</div>
+      </div>
+    </section>
+
+    <aside class="card right">
+      <div class="section-title">Traitement <span class="mini" id="statusLabel">En attente</span></div>
+      <div class="progressbox">
+        <div class="progress-head"><div class="progress-msg" id="progressMsg">Prêt</div><div class="progress-pct" id="progressPct">0%</div></div>
+        <div class="track"><div class="bar" id="bar"></div></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="n" id="statImages">—</div><div class="l">Images source</div></div>
+        <div class="stat"><div class="n" id="statPanels">—</div><div class="l">Panels</div></div>
+        <div class="stat"><div class="n" id="statCross">—</div><div class="l">Cross-file</div></div>
+        <div class="stat"><div class="n" id="statTime">—</div><div class="l">Temps total</div></div>
+      </div>
+
+      <div class="settings" id="settingsBox">
+        <button id="settingsToggle"><span>Paramètres avancés</span><span>⌄</span></button>
+        <div class="inner">
+          <div class="row"><label>Largeur d’analyse panels</label><select id="analysisWidth"><option value="160">160 px • très rapide</option><option value="192" selected>192 px • recommandé</option><option value="224">224 px</option><option value="256">256 px • précis</option><option value="320">320 px • lourd</option></select></div>
+          <div class="row"><label>Inclure les textes proches</label><label class="check"><input type="checkbox" id="useOCR" checked> OCR actif</label></div>
+          <div class="row"><label>Précision OCR</label><select id="ocrWidth"><option value="512">512 px • rapide</option><option value="640">640 px</option><option value="768" selected>768 px • recommandé</option><option value="896">896 px</option><option value="1024">1024 px • précis</option><option value="1152">1152 px • lourd</option></select></div>
+          <div class="row"><label>Prévisualisation debug</label><label class="check"><input type="checkbox" id="saveDebug" checked> sauvegarder overlay</label></div>
+        </div>
+      </div>
+
+      <div class="result" id="resultBox"><div class="result-title">Extraction terminée</div><div class="result-path" id="resultPath"></div><button class="open-btn" id="openOutput">Ouvrir le dossier de sortie</button></div>
+      <div class="error" id="errorBox"></div>
+      <div class="footer-note"><b>Sortie :</b> dossier <code>PanelCrops_Geometry</code> pour un dossier d’images, ou <code>&lt;nom du CBZ&gt; output</code> à côté d’un CBZ. Les panels coupés entre deux bandes sont reconstruits en un seul PNG HD. Au premier usage OCR, le petit modèle de détection (~4,8 Mo) est téléchargé une seule fois.</div>
+    </aside>
+  </main>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+let selected=null; let running=false;
+function setProgress(v,msg){v=Math.max(0,Math.min(1,Number(v)||0)); $('#bar').style.width=(v*100).toFixed(1)+'%'; $('#progressPct').textContent=Math.round(v*100)+'%'; if(msg) $('#progressMsg').textContent=msg;}
+function setRunning(v){running=v; $('#runBtn').disabled=v||!selected; $('#cbzBtn').disabled=v; $('#folderBtn').disabled=v; $('#analysisWidth').disabled=v; $('#useOCR').disabled=v; $('#ocrWidth').disabled=v||!$('#useOCR').checked; $('#saveDebug').disabled=v; $('#statusLabel').textContent=v?'En cours':'En attente'; if(v){$('#runBtn').innerHTML='<span class="spin"></span>Traitement…'; $('#resultBox').classList.remove('show'); $('#errorBox').classList.remove('show');}else{$('#runBtn').textContent='Découper les panels';}}
+function useSource(r){if(!r||!r.ok)return;selected=r;$('#selectedBox').classList.add('ready');$('#selectedName').textContent=(r.type==='cbz'?'CBZ • ':'DOSSIER • ')+r.name;$('#selectedPath').textContent=r.path;$('#runBtn').disabled=false;setProgress(0,'Prêt');$('#resultBox').classList.remove('show');$('#errorBox').classList.remove('show');['statImages','statPanels','statCross','statTime'].forEach(id=>$('#'+id).textContent='—');}
+$('#cbzBtn').onclick=async()=>useSource(await pywebview.api.choose_cbz());
+$('#folderBtn').onclick=async()=>useSource(await pywebview.api.choose_folder());
+$('#useOCR').onchange=()=>{$('#ocrWidth').disabled=running||!$('#useOCR').checked;};
+$('#runBtn').onclick=async()=>{if(running)return; const r=await pywebview.api.start_processing({analysis_width:Number($('#analysisWidth').value),use_ocr:$('#useOCR').checked,ocr_width:Number($('#ocrWidth').value),save_debug:$('#saveDebug').checked}); if(!r.ok){showError(r.error||'Impossible de démarrer.');} else setRunning(true);};
+$('#openOutput').onclick=()=>pywebview.api.open_output();
+$('#settingsToggle').onclick=()=>$('#settingsBox').classList.toggle('open');
+function showError(msg){$('#errorBox').textContent=msg;$('#errorBox').classList.add('show');}
+window.PanelForge={onPythonEvent(event,data){
+  if(event==='state'){setRunning(!!data.running);return;}
+  if(event==='progress'){setProgress(data.progress,data.message);$('#statusLabel').textContent=data.stage==='done'?'Terminé':'En cours';return;}
+  if(event==='error'){setRunning(false);setProgress(0,'Erreur');showError(data.message||'Erreur inconnue');$('#statusLabel').textContent='Erreur';return;}
+  if(event==='complete'){
+    setRunning(false);setProgress(1,'Terminé');$('#statusLabel').textContent='Terminé';
+    $('#statImages').textContent=data.source_images??'—';$('#statPanels').textContent=data.panels_detected??'—';$('#statCross').textContent=data.cross_file_panels??'—';$('#statTime').textContent=(data.total_seconds??0).toFixed(2)+' s';
+    $('#resultPath').textContent=data.output_dir||'';$('#resultBox').classList.add('show');
+  }
+}};
+window.addEventListener('pywebviewready', async()=>{try{const s=await pywebview.api.get_state();if(s&&s.running)setRunning(true);}catch(e){}});
+</script>
+</body>
+</html>

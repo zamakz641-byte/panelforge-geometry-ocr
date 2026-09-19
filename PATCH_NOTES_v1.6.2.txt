@@ -1,0 +1,14 @@
+PanelForge Geometry + OCR v1.6.2
+================================
+
+Correctif debug des chapitres très longs
+----------------------------------------
+- Corrige l'erreur « Échec de sauvegarde du debug ... analysis_overlay.jpg ».
+- Cause: JPEG/OpenCV refuse une dimension d'environ 65 500 px ou plus.
+  Un chapitre webtoon complet peut dépasser cette hauteur même en basse résolution.
+- Si l'overlay fait moins de 65 000 px: comportement inchangé, analysis_overlay.jpg.
+- S'il est plus haut: création de analysis_overlay_001.jpg, _002.jpg, etc.
+  par bandes de 30 000 px.
+- analysis_overlay_index.json indique la position Y globale de chaque bande.
+- Une panne de sauvegarde du DEBUG ne fait désormais plus échouer l'extraction des panels.
+- Aucun changement dans l'algorithme de découpe v1.6 / v1.6.1.

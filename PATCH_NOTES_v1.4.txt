@@ -1,0 +1,30 @@
+PanelForge Geometry + OCR v1.4 — patch notes
+
+NEW
+- Optional OCR-aware crop expansion.
+- PP-OCRv4 mobile text detector (~4.8 MB, downloaded once on first OCR run).
+- No text recognition: detection only, faster and sufficient for preserving bubbles/captions.
+- Multiple text regions can be attached to one panel.
+- OCR never creates or merges panels by itself; geometry remains authoritative.
+- Long webtoon pages are processed in overlapping OCR tiles to limit RAM usage.
+- OCR resolution selector: 512 / 640 / 768 / 896 / 1024 / 1152 px.
+- Debug overlay: red geometry, orange text, green final crop.
+- panels.csv adds text_count and ocr_expanded.
+- report.json adds OCR timing and text/expanded-panel counters.
+
+DEFAULTS
+- Panel analysis: 192 px.
+- OCR: enabled, 768 px.
+
+COMPATIBILITY
+- Keeps the existing OpenCV + NumPy stack.
+- Does not add PaddlePaddle or ONNX Runtime, which avoids Python-version headaches.
+
+
+v1.4 - OCR grouping tested on 5 supplied webtoon strips
+- OCR now removes geometry candidates that are actually text-only titles/captions.
+- Standalone text is attached to the nearest real panel in reading order.
+- Removed the overly small absolute distance limit from v1.3.
+- Multiple text regions may expand the same crop.
+- Expansion may use the whole gutter but never enters adjacent real artwork.
+- Added report field: ocr_text_only_panels_removed.

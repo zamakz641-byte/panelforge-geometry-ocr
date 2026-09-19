@@ -1,0 +1,22 @@
+PanelForge Geometry + OCR v1.6
+
+FIX PRINCIPAL — PANELS VERTICAUX FUSIONNÉS
+- Ajoute un second passage "post-split" pour les crops anormalement hauts.
+- Détecte les transitions de scène même sans gouttière blanche : changements larges de couleur/layout, vallées de détail, séparateurs sombres/colorés.
+- L'OCR protège désormais les bulles/captions pendant le split : aucune coupe ne peut traverser une zone texte détectée.
+- Les coupes arbitraires à hauteur fixe sont interdites : si aucune couture visuelle sûre n'existe, le panel reste entier.
+- Fonctionne aussi sans OCR, avec une protection moindre mais la même détection de coutures visuelles.
+- Ajoute dans report.json : postsplit_panels_split, postsplit_new_panels, postsplit_cuts.
+
+CAS VISÉS
+- longs fonds noirs/bleus/rouges continus ;
+- narration sur grand espace vide ;
+- plusieurs scènes collées sans bordure nette ;
+- inset panel + texte + illustration dans un même bloc vertical.
+
+TESTS SUR LES 6 IMAGES FOURNIES (OCR désactivé pour isoler la géométrie)
+- v1.5 : 1 / 1 / 1 / 1 / 1 / 1 crop.
+- v1.6 : 4 / 2 / 3 / 4 / 2 / 3 crops.
+- Temps observé par image dans le test local : ~0,23 à 0,38 s.
+- Compilation de tous les modules : OK.
+- process_source complet : OK.

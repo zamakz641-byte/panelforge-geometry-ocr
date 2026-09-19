@@ -1,0 +1,14 @@
+PanelForge Geometry + OCR v1.5
+
+FIX CRITIQUE WINDOWS / PYWEBVIEW
+- La Window pywebview n'est plus stockée dans un attribut public du js_api.
+- self.window -> self._window
+- set_window -> _set_window
+- Empêche pywebview d'inspecter récursivement l'objet natif WinForms (SyncRoot.SyncRoot... / RecursionError).
+- Sélection CBZ et dossier conservées via le dialogue natif pywebview.
+
+TESTS
+- Compilation Python de tous les modules.
+- Test de surface publique de Api : aucune référence Window exposée.
+- Test de choose_cbz avec dialogue mock renvoyant un vrai chemin CBZ.
+- Test d'extraction puis traitement géométrique d'un CBZ construit avec les 5 pages de test.
